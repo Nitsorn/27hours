@@ -12,7 +12,7 @@ export const getStyle = () => {
 
 function getSelector(t) {
   let target = t;
-  let targetName = target.constructor.name;
+  let targetName = target?.constructor.name ?? null;
 
   const validTargetNames = ['HTMLDivElement', 'HTMLAnchorElement', 'HTMLButtonElement', 'HTMLInputElement', 'HTMLTextAreaElement', 'HTMLSelectElement'];
 
@@ -20,9 +20,9 @@ function getSelector(t) {
   // if not, get the closest valid target
   if (!validTargetNames.includes(targetName)) {
     target = target.closest('div, button, a, input, textarea, select');
-    targetName = target.constructor.name;
+    targetName = target?.constructor.name ?? null;
 
-    if (!target) {
+    if (!target || targetName === null) {
       return;
     }
   }
@@ -53,7 +53,11 @@ function IndexPopup() {
 
     const handleClick = (e) => {
       console.log('click');
+      const target = getSelector(e.target);
 
+      if (!target) {
+        return;
+      }
       stack.push({
         type: 'click',
         target: getSelector(e.target)
@@ -73,6 +77,8 @@ function IndexPopup() {
 
     // TODO only for enter for now
     const handleKeydown = (e) => {
+      console.log('getting in keydown handler', e.key);
+      
       
       if (e.key === 'Enter') {
         
@@ -92,29 +98,31 @@ function IndexPopup() {
      * focus and listen for value
      */
     
-    const listenToInputTyping = (element) => {
-      if (!element) {
+    const listenToInputTyping = (eventTarget) => {
+      if (!eventTarget) {
         return;
       }
       
-      let value = element.value;
+      let value = eventTarget.value;
 
       const inputEventHandler = (e) => {
+        console.log(e);
+        
         console.log('input', e.target.value);
         value = e.target.value;
       }
 
-      element.addEventListener('keydown', inputEventHandler);
+      eventTarget.addEventListener('keydown', inputEventHandler);
 
-      element.addEventListener('blur', () => {
+      eventTarget.addEventListener('blur', (e) => {
         stack.push({
           type: 'keydown',
-          target: getSelector(element),
-          value
+          target: getSelector(eventTarget),
+          value: e.target.value, 
         });
 
         setStack(stack);
-        element.removeEventListener('input', inputEventHandler);
+        eventTarget.removeEventListener('keydown', inputEventHandler);
       });
     }
 
@@ -145,11 +153,19 @@ function IndexPopup() {
     });
   }
 
-  const startSimulation = async () => {
+  const startSimulation = async (stack) => {
+
+
+    console.log('stack', stack);
+    
     
     for (let i = 0; i < stack.length; i++) {
+      console.log('stack[i]', stack[i]);
+      
       try {
         const element = $(stack[i].target)[0];
+        console.log('element', element);
+        
 
         if (!element) {
           continue;
@@ -161,21 +177,22 @@ function IndexPopup() {
           element.click();
           element.focus();
 
-        } else if (stack[i].type === 'keydown' && stack[i].target) {
+        } else if (stack[i].type === 'keydown' && stack[i].target && stack[i].value) {
 
           const value = stack[i].value;
           console.log('keydown', value);
 
-          if (value === 'Enter') {
-            element.dispatchEvent(new KeyboardEvent('keydown', {
-              key: 'Enter',
-              bubbles: true,
-              cancelable: true,
-            }));
-            continue;
-          }
-
-          element.value += value;
+          
+          // execCommand
+          // element.focus();
+          // document.execCommand('insertText', false, value);
+          
+          // Manual
+          element.focus();
+          element.value = value;
+          element.dispatchEvent(new Event('input', {
+            bubbles: true,
+          }));
         }
       } catch (error) {
         console.log('error', error);
@@ -195,7 +212,7 @@ function IndexPopup() {
       }
       {
         (!isRecording && stack.length > 0) && (
-          <div onClick={startSimulation} className="bg-white p-10">Start simulation</div>
+          <div onClick={() => startSimulation(stack)} className="bg-white p-10">Start simulation</div>
         )
       }
     </>
