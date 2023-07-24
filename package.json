@@ -1,8 +1,8 @@
 {
-  "name": "click-things",
-  "displayName": "Click things",
+  "name": "27hours",
+  "displayName": "27hours",
   "version": "0.0.1",
-  "description": "click things for me on pages",
+  "description": "Automate repetitive tasks, save 3 hrs per day",
   "author": "nitsornwongsajjathiti",
   "packageManager": "yarn@1.22.4",
   "scripts": {

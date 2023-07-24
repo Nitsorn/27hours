@@ -90,7 +90,7 @@ export const useAutomate = () => {
       } catch (error) {
         console.log('error', error);
       }
-      await sleepFor(2000);
+      await sleepFor(1000);
     }
 
     alert('Simulation complete')
