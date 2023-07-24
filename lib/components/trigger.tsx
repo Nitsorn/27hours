@@ -1,17 +1,16 @@
+import { TbPlayerStop, TbPlayerStopFilled } from "react-icons/tb";
+
 interface Props {
   setIsPopupOpen: (value: boolean) => void;
-  setIsRecording: (value: boolean) => void;
+  onStopRecording: () => void;
   isRecording: boolean;
 }
 
 export const Trigger = (props: Props) => {
   if (props.isRecording) {
     return (
-      <button onClick={() => {
-        props.setIsPopupOpen(true);
-        props.setIsRecording(false);
-      }} className="fixed bottom-5 right-5 rounded-full w-14 h-14 hover:scale-105 ease-in-out duration-75 bg-red-500 text-white">
-        X stop
+      <button onClick={props.onStopRecording} className="fixed bottom-5 right-5 rounded-full w-14 h-14 hover:scale-105 ease-in-out duration-75 bg-black text-red-500 flex items-center justify-center">
+        <TbPlayerStopFilled size={40} />
       </button>
     )
   }

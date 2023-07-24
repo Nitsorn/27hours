@@ -14,6 +14,7 @@ export const useAutomate = () => {
     
     
     for (let i = 0; i < stack.length; i++) {
+      console.log(stack.length);
       console.log('stack[i]', stack[i]);
       
       try {
@@ -39,12 +40,13 @@ export const useAutomate = () => {
 
           console.log('clicking on', stack[i].target);
           element.click();
-          element.focus();
+          // element.focus();
+
           // dispatch event click
-          element.dispatchEvent(new Event('click', {
-            bubbles: true,
-          }));
-          // dispatch mousedown event
+          // element.dispatchEvent(new Event('click', {
+          //   bubbles: true,
+          // }));
+          // // dispatch mousedown event
           element.dispatchEvent(new Event('mousedown', {
             bubbles: true,
           }));
@@ -88,8 +90,10 @@ export const useAutomate = () => {
       } catch (error) {
         console.log('error', error);
       }
-      await sleepFor(500);
+      await sleepFor(2000);
     }
+
+    alert('Simulation complete')
   }
 
   return {

@@ -1,24 +1,37 @@
 import { useEffect, useState } from "react";
-import { getSelector, typeableClosestElement } from "~lib/utils";
+import { getSelector, typeableClosestElement, type SupportedPlatform } from "~lib/utils";
+import { usePlatform } from "./use-platform";
+
+export interface StackInfo {
+  icon?: string;
+  name: string;
+  description: string;
+}
 
 export const useRecord = () => {
   const [stack, setStack] = useState([]);
+  const [stackInfo, setStackInfo] = useState<StackInfo>({
+    name: '',
+    description: '',
+  });
 
   const [isRecording, setIsRecording] = useState(false);
+
+  const { platform } = usePlatform();
 
   useEffect(() => {
     const stack = [];
 
     const handleClick = (e) => {
       console.log('click');
-      const target = getSelector(e.target);
+      const target = getSelector(e.target, platform);
 
       if (!target) {
         return;
       }
       stack.push({
         type: 'click',
-        target: getSelector(e.target)
+        target: getSelector(e.target, platform)
       });
 
       setStack(stack);
@@ -45,7 +58,7 @@ export const useRecord = () => {
         
         stack.push({
           type: 'keydown',
-          target: getSelector(e.target),
+          target: getSelector(e.target, platform),
           value: e.key
         });
         
@@ -77,15 +90,19 @@ export const useRecord = () => {
 
       // eventTarget.addEventListener('input', inputEventHandler);
 
+      
       eventTarget.addEventListener('blur', (e) => {
-        stack.push({
-          type: 'keydown',
-          target: getSelector(eventTarget),
-          value: e.target.value || e.target.textContent, 
-        });
+        if (e.target.value !== '' || e.target.textContent !== '') {
 
-        setStack(stack);
-        // eventTarget.removeEventListener('input', inputEventHandler);
+          stack.push({
+            type: 'keydown',
+            target: getSelector(eventTarget, platform),
+            value: e.target.value || e.target.textContent, 
+          });
+          
+          setStack(stack);
+          // eventTarget.removeEventListener('input', inputEventHandler);
+        }
       });
     }
 
@@ -112,5 +129,7 @@ export const useRecord = () => {
     stack,
     isRecording,
     setIsRecording,
+    stackInfo,
+    setStackInfo
   }
 }

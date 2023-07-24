@@ -1,8 +1,39 @@
 import { finder } from "@medv/finder";
 
-export function getSelector(t) {
+export type SupportedPlatform = 'jira' | 'retool' | 'unsupported';
+
+export function getSelector(t, platform: SupportedPlatform) {
   let target = t;
   let targetName = target?.constructor.name ?? null;
+
+  let config = {
+    root: document.body,  
+    idName: (name) => true,
+    className: (name) => false,
+    tagName: (name) => true,
+    attr: (name, value) => true,
+    seedMinLength: 5,           
+    optimizedMinLength: 2,
+    threshold: 1000,
+    maxNumberOfTries: 10_000,
+  };
+
+  switch (platform) {
+    case 'jira': 
+      config = {
+        ...config,
+        idName: (name) => !name.includes('react-select'),
+        className: (name) => false,
+        tagName: (name) => true,
+        attr: (name, value) => {
+          if (name === 'class') return false;
+          if (name ===  'id')  return !value.includes('react-select');
+          return true;
+        }, // Check if attr name can be used.
+      }
+    default:
+      break;
+  }
 
   const validTargetNames = ['HTMLDivElement', 'HTMLAnchorElement', 'HTMLButtonElement', 'HTMLInputElement', 'HTMLTextAreaElement', 'HTMLSelectElement'];
 
@@ -17,21 +48,7 @@ export function getSelector(t) {
     }
   }
 
-  const selector = finder(target, {
-    root: document.body,          // Root of search, defaults to document.body.
-    idName: (name) => !name.includes('react-select'),       // Check if this ID can be used.
-    className: (name) => false,    // Check if this class name can be used.
-    tagName: (name) => true,      // Check if tag name can be used.
-    attr: (name, value) => {
-      if (name === 'class') return false;
-      if (name ===  'id')  return !value.includes('react-select');
-      return true;
-    }, // Check if attr name can be used.
-    seedMinLength: 5,           
-    optimizedMinLength: 2,
-    threshold: 1000,
-    maxNumberOfTries: 10_000,
-  });
+  const selector = finder(target, config);
   return selector;
 }
 
