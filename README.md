@@ -11,7 +11,7 @@ Basic plasmo plugin that can automate and simulate user clicks and keyboard inpu
 - `Popup` component is the modal popup 
 
 ### How we track clicks and key downs
-We listen to document's click and keydown events in `useRecord`. When we click an element, we use `[finder]([url](https://www.npmjs.com/package/@medv/finder))` npm module to find the position of the element on the DOM.
+We listen to document's click and keydown events in `useRecord`. When we click an element, we use [finder]([url](https://www.npmjs.com/package/@medv/finder)) npm module to find the position of the element on the DOM.
 
 When user click on inputs/textareas, we detect if the element is "typeable". If it is, we also bind a blur event. When user then blur on input, we check its value as the user input. This way we are not listening to individual characters being typed.
 
