@@ -4,6 +4,7 @@ import { usePopup } from "~lib/utils/use-popup";
 import { Popup } from "~lib/components/popup";
 import { Trigger } from "~lib/components/trigger";
 import { useRecord } from '~lib/utils/use-record';
+import { useAutomations } from '~lib/utils/use-automations';
  
 export const getStyle = () => {
   const style = document.createElement("style")
@@ -11,7 +12,7 @@ export const getStyle = () => {
   return style
 }
 
-function IndexPopup() {
+function RootComponent() {
   const {
     isRecording,
     setIsRecording,
@@ -19,6 +20,8 @@ function IndexPopup() {
     stackInfo,
     setStackInfo,
   } = useRecord();
+
+  const { automations, setAutomations } = useAutomations();
 
   const {
     setIsPopupOpen,
@@ -33,7 +36,8 @@ function IndexPopup() {
         isPopupOpen ? (
           <Popup
             isRecording={isRecording}
-            stack={stack}
+            automations={automations}
+            setAutomations={setAutomations}
             setIsRecording={setIsRecording}
             setIsPopupOpen={setIsPopupOpen}
             setIsCreatingNew={setIsCreatingNew}
@@ -48,6 +52,13 @@ function IndexPopup() {
               setIsCreatingNew(false);
               setIsPopupOpen(true);
               setIsRecording(false);
+              setAutomations([...automations, {
+                info: {
+                  name: stackInfo.name,
+                  description: stackInfo.description,
+                },
+                steps: stack,
+              }])
             }}
             setIsPopupOpen={setIsPopupOpen}
           />
@@ -57,7 +68,7 @@ function IndexPopup() {
   )
 }
 
-export default IndexPopup
+export default RootComponent
 
 export const config: PlasmoCSConfig = {
   matches: ["<all_urls>"],

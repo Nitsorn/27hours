@@ -1,17 +1,19 @@
 import { useAutomate } from "../utils/use-automate";
-import { TbPencil, TbPlus, TbSearch } from 'react-icons/tb';
+import { TbPencil, TbPlus, TbSearch, TbTrash } from 'react-icons/tb';
 import type { StackInfo } from "../utils/use-record";
 import { NewAutomation } from "./new-automation";
+import type { Automation } from "~lib/utils/use-automations";
 
 interface Props {
   setIsPopupOpen: (value: boolean) => void;
   setIsRecording: (value: boolean) => void;
   isRecording: boolean;
-  stack: any[];
   setIsCreatingNew: (value: boolean) => void;
   isCreatingNew: boolean;
   setStackInfo: (value: StackInfo) => void;
   stackInfo: StackInfo;
+  automations: Automation[];
+  setAutomations: (value: Automation[]) => void;
 }
 
 export const Popup = (props: Props) => {
@@ -19,7 +21,8 @@ export const Popup = (props: Props) => {
   const {
     isRecording,
     setIsRecording,
-    stack,
+    automations,
+    setAutomations,
     setIsPopupOpen,
     setIsCreatingNew,
     isCreatingNew,
@@ -61,7 +64,7 @@ export const Popup = (props: Props) => {
       <div onClick={e => e.stopPropagation()} className="bg-white shadow-lg shadow-gray-500 w-full max-w-[500px] p-5 pt-2 rounded-lg flex flex-col gap-5">
         <div className="relative w-full">
           <TbSearch className=" absolute left-0 top-0 bottom-0 mt-auto mb-auto text-2xl text-gray-400" />
-          <input type="text" placeholder="Cmd K | Search Commands" className=" w-full border-0 border-b-2 border-gray-200 text-2xl p-3 pl-10 placeholder:text-gray-400" />
+          <input type="text" placeholder="Search Commands" className=" w-full border-0 border-b-2 border-gray-200 text-2xl p-3 pl-10 placeholder:text-gray-400" />
         </div>
         <div className="flex flex-row justify-between items-center">
           <label htmlFor="shortcuts" className=" uppercase text-sm text-gray-400 font-medium">Shortcuts</label>
@@ -75,7 +78,7 @@ export const Popup = (props: Props) => {
         <div className="flex flex-col gap-2">
           
           {
-            stack.length === 0 && (
+            automations.length === 0 && (
               <div className=" bg-gray-100 p-5 rounded-md text-center text-gray-400">
                 <div className=" text-lg ">No shortcuts yet</div>
                 <div className=" text-sm mt-5">Create a new shortcut to get started.</div>
@@ -84,17 +87,32 @@ export const Popup = (props: Props) => {
           }
 
           {
-            (!isRecording && stack.length > 0) && (
-              <button className=" font-medium text-lg text-left text-black p-5 pl-2 rounded-md hover:bg-[#EBEAF5] cursor-pointer flex flex-row justify-start gap-5 transition-all duration-150 ease-in-out items-center" onClick={() => {
-                startSimulation(stack);
-                setIsPopupOpen(false);
-              }}>
-                <TbPencil size={30} />
-                <div>
-                  <div>{stackInfo.name}</div>
-                  <div className=" text-sm text-gray-700">{stackInfo.description}</div>
-                </div>
-              </button>
+            (!isRecording && automations.length > 0) && (
+              <>
+                {
+                  automations.map((automation, index) => {
+                    return (
+                      <div key={index} className="flex flex-row gap-2 items-center justify-between">
+                        <button className=" font-medium text-lg text-left text-black p-5 pl-2 rounded-md hover:bg-[#EBEAF5] cursor-pointer flex flex-row justify-start gap-5 transition-all duration-150 ease-in-out items-center" onClick={() => {
+                          startSimulation(automation.steps);
+                          setIsPopupOpen(false);
+                        }}>
+                          <TbPencil size={30} />
+                          <div>
+                            <div>{automation.info.name}</div>
+                            <div className=" text-sm text-gray-700">{automation.info.description}</div>
+                          </div>
+                        </button>
+                        <button onClick={() => {
+                          setAutomations(automations.filter((_, i) => i !== index));
+                        }}>
+                          <TbTrash size={30} className=" text-red-500" />
+                        </button>
+                      </div>
+                    )
+                  })
+                }
+              </>
             )
           }
         </div>
